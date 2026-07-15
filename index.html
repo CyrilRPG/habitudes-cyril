@@ -205,6 +205,29 @@
   .tr-tag{font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);
     border:1px solid var(--accent);border-radius:20px;padding:1px 7px;margin-left:8px;white-space:nowrap}
 
+  /* Objectifs par catégorie */
+  .obj-head{margin:2px 2px 14px}
+  .obj-head h2{font-size:20px;margin:0 0 3px}
+  .obj-head p{margin:0;font-size:12.5px;color:var(--muted)}
+  .cat-card{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);
+    border-radius:18px;padding:14px;margin-bottom:11px;cursor:pointer;transition:.15s}
+  .cat-card:active{transform:scale(.99)}
+  .cc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .cc-emoji{width:46px;height:46px;border-radius:13px;flex-shrink:0;display:grid;place-items:center;font-size:23px;
+    background:radial-gradient(circle at 30% 25%,rgba(228,200,134,.22),rgba(160,127,69,.10));
+    border:1px solid rgba(201,167,107,.32)}
+  .cc-head{flex:1;min-width:0}
+  .cc-name{font-size:15px;font-weight:700}
+  .cc-rank{font-size:12px;color:var(--accent);font-weight:700;margin-top:2px}
+  .cc-rank .lvl{color:var(--muted);font-weight:600}
+  .cc-streak{flex-shrink:0;font-size:11.5px;font-weight:700;color:var(--accent);
+    background:rgba(201,167,107,.14);border:1px solid rgba(201,167,107,.3);border-radius:20px;padding:4px 9px;white-space:nowrap}
+  .cc-prog-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:6px}
+  .cc-prog-labels span:first-child{color:var(--txt);font-weight:700}
+  .cc-bar-wrap{height:9px;background:var(--bg2);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+  .cc-bar{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent2),var(--accent));
+    transition:width .7s cubic-bezier(.22,1,.36,1);min-width:2px}
+
   /* Modal */
   .modal-bg{position:fixed;inset:0;background:rgba(10,8,6,.72);z-index:60;display:grid;place-items:end center;
     padding:0;animation:fade .2s}
@@ -331,36 +354,15 @@
 
   <!-- ============ OBJECTIFS ============ -->
   <section id="view-objectifs" class="view hidden">
-    <div class="tier-hero" id="tierHero">
-      <div class="th-top">
-        <div class="th-emoji" id="tierEmoji">✦</div>
-        <div class="th-meta">
-          <div class="th-rank" id="tierRank">Palier</div>
-          <div class="th-name" id="tierName">—</div>
-          <div class="th-desc" id="tierDesc">—</div>
-        </div>
-      </div>
-      <div class="th-progress">
-        <div class="th-prog-labels"><span id="tierPts">0 pts</span><span id="tierNext">—</span></div>
-        <div class="th-bar-wrap"><div class="th-bar" id="tierBar" style="width:0%"></div></div>
-      </div>
+    <div class="obj-head">
+      <h2>Objectifs par catégorie</h2>
+      <p>Chaque domaine progresse à son rythme, palier après palier.</p>
     </div>
-
-    <div class="streak-card" id="streakCard">
-      <div class="sc-flame" id="scFlame">🔥</div>
-      <div class="sc-body">
-        <div class="sc-title" id="scTitle">Aucune série en cours</div>
-        <div class="sc-sub" id="scSub">Coche au moins la moitié de tes habitudes aujourd'hui pour lancer une série.</div>
-      </div>
-    </div>
-
     <div class="how-note">
-      <strong>Comment gagner des points ?</strong> +10 pts par habitude cochée, +20 pour une journée à 100 %,
-      et un <em>bonus de série</em> qui grandit chaque jour où tu tiens le rythme 🔥
+      <strong>Comment ça marche ?</strong> Chaque habitude cochée rapporte <em>+10 pts</em> à sa catégorie,
+      <em>+5</em> si la catégorie est complète dans la journée, et un <em>bonus de série</em> tant que tu la gardes à 100 % 🔥
     </div>
-
-    <div class="section-title">Les paliers</div>
-    <div id="tierList"></div>
+    <div id="catList"></div>
   </section>
 </div>
 
@@ -385,24 +387,31 @@
   const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
 
   const DEFAULT_HABITS = [
-    {id:"priere",   name:"Prière du soir",                 icon:"🙏"},
-    {id:"sport",    name:"Sport",                          icon:"💪", hint:"Rythme : sport · sport · repos"},
-    {id:"bible",    name:"Lecture de la Bible + commentaire", icon:"📖"},
-    {id:"anglais",  name:"Anglais – Pingo",                icon:"🇬🇧"},
-    {id:"hermione", name:"Travail Hermione Médecine",      icon:"🩺"},
-    {id:"projets",  name:"Projets Stéphane / Sonia",       icon:"💼"},
-    {id:"items",    name:"Apprendre 1 item / Réviser 2",   icon:"🧠"},
-    {id:"culture",  name:"Voir une vidéo de culture générale", icon:"🎥"},
+    {id:"priere",   name:"Prière du soir",                 icon:"🙏", cat:"spirituel"},
+    {id:"sport",    name:"Sport",                          icon:"💪", hint:"Rythme : sport · sport · repos", cat:"sport"},
+    {id:"bible",    name:"Lecture de la Bible + commentaire", icon:"📖", cat:"spirituel"},
+    {id:"anglais",  name:"Anglais – Pingo",                icon:"🇬🇧", cat:"culture"},
+    {id:"hermione", name:"Travail Hermione Médecine",      icon:"🩺", cat:"travail"},
+    {id:"projets",  name:"Projets Stéphane / Sonia",       icon:"💼", cat:"travail"},
+    {id:"items",    name:"Apprendre 1 item / Réviser 2",   icon:"🧠", cat:"etudes"},
+    {id:"culture",  name:"Voir une vidéo de culture générale", icon:"🎥", cat:"culture"},
   ];
+  const CAT_FALLBACK = "autre";
 
   // ---------- State ----------
   let state = load();
   function load(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){ const p = JSON.parse(raw); if(!p.habits) p.habits = DEFAULT_HABITS.slice(); if(!p.days) p.days={}; return p; }
+      if(raw){ const p = JSON.parse(raw); if(!p.habits) p.habits = DEFAULT_HABITS.slice(); if(!p.days) p.days={}; return migrate(p); }
     }catch(e){}
     return { habits: DEFAULT_HABITS.slice(), days:{} };
+  }
+  // Backfill category on habits saved before categories existed.
+  function migrate(p){
+    const byId = {}; DEFAULT_HABITS.forEach(h=>byId[h.id]=h.cat);
+    p.habits.forEach(h=>{ if(!h.cat) h.cat = byId[h.id] || CAT_FALLBACK; });
+    return p;
   }
   function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
 
@@ -600,97 +609,131 @@
     return s;
   }
 
-  // ---------- Objectifs / paliers ----------
-  const TIERS = [
-    {name:"Étincelle", emoji:"✨", min:0,    desc:"Le premier feu s'allume. Tout commence ici."},
-    {name:"Braise",    emoji:"🔥", min:80,   desc:"La chaleur s'installe, jour après jour."},
-    {name:"Flamme",    emoji:"🕯️", min:250,  desc:"Ta discipline prend vie."},
-    {name:"Flambeau",  emoji:"🪔", min:550,  desc:"Tu éclaires ta propre voie."},
-    {name:"Brasier",   emoji:"🏕️", min:1000, desc:"Plus rien n'arrête ton élan."},
-    {name:"Fournaise", emoji:"🌋", min:1700, desc:"Une intensité qui force le respect."},
-    {name:"Phare",     emoji:"🏮", min:2700, desc:"Ta constance guide et inspire."},
-    {name:"Soleil",    emoji:"☀️", min:4000, desc:"Au sommet : une régularité qui rayonne."},
+  // ---------- Objectifs par catégorie ----------
+  const BASE_MINS = [0,40,110,230,420,700];
+  const CATEGORIES = [
+    {id:"spirituel", name:"Spirituel",         emoji:"🙏", ranks:["Chercheur","Fidèle","Veilleur","Pèlerin","Disciple","Lumière"]},
+    {id:"sport",     name:"Sport",             emoji:"💪", ranks:["Débutant","Actif","Endurant","Athlète","Guerrier","Champion"]},
+    {id:"travail",   name:"Travail / Projets", emoji:"💼", ranks:["Apprenti","Équipier","Bâtisseur","Artisan","Expert","Maître"]},
+    {id:"etudes",    name:"Études",            emoji:"🎓", ranks:["Novice","Étudiant","Assidu","Érudit","Savant","Docteur"]},
+    {id:"culture",   name:"Culture",           emoji:"🎥", ranks:["Curieux","Amateur","Éclairé","Connaisseur","Cultivé","Sage"]},
+    {id:"autre",     name:"Autre",             emoji:"⭐", ranks:["Débutant","Habitué","Confirmé","Aguerri","Expert","Maître"]},
   ];
-  function streakBonus(streak){ return streak>=2 ? Math.min(streak,10)*5 : 0; }
+  function habitsInCat(catId){ return state.habits.filter(h=>(h.cat||CAT_FALLBACK)===catId); }
+  function catMins(nHabits){ const m=Math.max(1,nHabits); return BASE_MINS.map(x=>x*m); }
 
-  function computeScore(){
+  // Per-category stats for one day
+  function catDay(catId, k){
+    const day = state.days[k];
+    let applicable=0, done=0, restCount=0;
+    if(day && day.checks){
+      for(const h of habitsInCat(catId)){
+        const st = day.checks[h.id];
+        if(st==="rest"){ restCount++; continue; }
+        applicable++; if(st==="done") done++;
+      }
+    }
+    return {applicable, done, restCount,
+      complete: applicable>0 && done===applicable,
+      rest: applicable===0 && restCount>0};
+  }
+  // Cumulative points for a category over the whole history
+  function computeCat(catId){
     const keys = Object.keys(state.days).filter(hasData).sort();
     let total=0, streak=0, prev=null;
     for(const k of keys){
       const d = fromKey(k);
       if(prev){ const gap=Math.round((d-prev)/86400000); if(gap>1) streak=0; }
-      const c = computeDay(k);
-      if(c.applicable>0){
-        let pts = c.done*10;
-        if(c.pct>=100) pts += 20;
-        if(c.pct>=50){ streak++; pts += streakBonus(streak); } else streak=0;
-        total += pts;
-      }
+      const cd = catDay(catId,k);
+      total += cd.done*10;
+      if(cd.complete){ total += 5; streak++; if(streak>=2) total += Math.min(streak,10)*3; }
+      else if(cd.rest){ /* jour de repos : neutre */ }
+      else { streak=0; }
       prev = d;
     }
-    return {total};
+    return total;
   }
-  function tierFor(total){
-    let idx=0;
-    for(let i=0;i<TIERS.length;i++){ if(total>=TIERS[i].min) idx=i; }
-    return idx;
+  // Current streak (consecutive complete days ending today; today may still be open)
+  function catStreak(catId){
+    let s=0, d=new Date(TODAY), first=true;
+    while(true){
+      const cd = catDay(catId, key(d));
+      if(cd.complete){ s++; d=addDays(d,-1); first=false; continue; }
+      if(cd.rest){ d=addDays(d,-1); first=false; continue; }
+      if(first){ d=addDays(d,-1); first=false; continue; } // aujourd'hui encore ouvert
+      break;
+    }
+    return s;
   }
+  function tierIndex(total, mins){ let i=0; for(let j=0;j<mins.length;j++){ if(total>=mins[j]) i=j; } return i; }
 
   function renderObjectifs(){
-    const {total} = computeScore();
-    const idx = tierFor(total);
-    const cur = TIERS[idx];
-    const next = TIERS[idx+1] || null;
+    const list = $("#catList"); list.innerHTML="";
+    CATEGORIES.forEach(cat=>{
+      const hs = habitsInCat(cat.id);
+      if(hs.length===0) return;
+      const mins = catMins(hs.length);
+      const total = computeCat(cat.id);
+      const idx = tierIndex(total, mins);
+      const nextMin = idx<mins.length-1 ? mins[idx+1] : null;
+      const s = catStreak(cat.id);
+      const bonus = s>=2 ? Math.min(s,10)*3 : 0;
 
-    $("#tierEmoji").textContent = cur.emoji;
-    $("#tierRank").textContent = "Palier "+(idx+1)+" / "+TIERS.length;
-    $("#tierName").textContent = cur.name;
-    $("#tierDesc").textContent = cur.desc;
-    $("#tierPts").textContent = total.toLocaleString("fr-FR")+" pts";
+      let prog, right;
+      if(nextMin!==null){
+        prog = Math.max(0, Math.min(100, Math.round((total-mins[idx])/(nextMin-mins[idx])*100)));
+        right = (nextMin-total).toLocaleString("fr-FR")+" pts → "+cat.ranks[idx+1];
+      } else { prog=100; right="Palier max 👑"; }
 
-    const bar = $("#tierBar");
-    if(next){
-      const span = next.min - cur.min;
-      const prog = Math.max(0, Math.min(100, Math.round((total-cur.min)/span*100)));
-      $("#tierNext").textContent = (next.min-total).toLocaleString("fr-FR")+" pts → "+next.name;
-      bar.style.width="0%"; void bar.offsetWidth; bar.style.width = prog+"%";
-    } else {
-      $("#tierNext").textContent = "Palier maximal atteint 👑";
-      bar.style.width="0%"; void bar.offsetWidth; bar.style.width = "100%";
-    }
-
-    // streak card
-    const s = currentStreak();
-    const card = $("#streakCard");
-    if(s>=2){
-      const b = streakBonus(s);
-      card.classList.add("active");
-      $("#scTitle").innerHTML = "Série de "+s+" jours 🔥";
-      $("#scSub").innerHTML = "Bonus actif : <span class='sc-bonus'>+"+b+" pts / jour</span>. Continue pour le faire grimper !";
-    } else {
-      card.classList.remove("active");
-      $("#scTitle").textContent = s===1 ? "Série lancée : 1 jour" : "Aucune série en cours";
-      $("#scSub").textContent = s===1
-        ? "Encore un jour à ≥ 50 % et ton bonus de série démarre 🔥"
-        : "Coche au moins la moitié de tes habitudes aujourd'hui pour lancer une série.";
-    }
-
-    // tier list
-    const list = $("#tierList"); list.innerHTML="";
-    TIERS.forEach((t,i)=>{
-      const st = i<idx ? "unlocked" : i===idx ? "current" : "locked";
-      const row = document.createElement("div");
-      row.className = "tier-row "+st;
-      const tag = i===idx ? '<span class="tr-tag">Actuel</span>' : i<idx ? '<span style="color:var(--accent);font-size:13px">✓</span>' : '';
-      row.innerHTML = `
-        <div class="tr-badge">${t.emoji}</div>
-        <div class="tr-body">
-          <div class="tr-name">${t.name} ${i===idx?tag:""}</div>
-          <div class="tr-desc">${escapeHtml(t.desc)}</div>
+      const card = document.createElement("div");
+      card.className="cat-card"; card.dataset.cat=cat.id;
+      card.innerHTML = `
+        <div class="cc-top">
+          <div class="cc-emoji">${cat.emoji}</div>
+          <div class="cc-head">
+            <div class="cc-name">${cat.name}</div>
+            <div class="cc-rank">${cat.ranks[idx]} <span class="lvl">· Palier ${idx+1}/${mins.length}</span></div>
+          </div>
+          ${s>=2?`<div class="cc-streak">🔥 ${s} j · +${bonus}</div>`:""}
         </div>
-        <div class="tr-req">${i<=idx?(i<idx?tag:""):(t.min.toLocaleString("fr-FR")+" pts")}</div>`;
-      list.appendChild(row);
+        <div class="cc-prog-labels"><span>${total.toLocaleString("fr-FR")} pts</span><span>${right}</span></div>
+        <div class="cc-bar-wrap"><div class="cc-bar" style="width:0%"></div></div>`;
+      card.addEventListener("click",()=>openCatDetail(cat.id));
+      list.appendChild(card);
+      const bar=card.querySelector(".cc-bar"); void bar.offsetWidth; bar.style.width = prog+"%";
     });
+  }
+
+  function openCatDetail(catId){
+    const cat = CATEGORIES.find(c=>c.id===catId);
+    const hs = habitsInCat(catId);
+    const mins = catMins(hs.length);
+    const total = computeCat(catId);
+    const idx = tierIndex(total, mins);
+    const s = catStreak(catId);
+    const bonus = s>=2 ? Math.min(s,10)*3 : 0;
+    const rows = cat.ranks.map((r,i)=>{
+      const st = i<idx?"unlocked":i===idx?"current":"locked";
+      const nameTag = i===idx?' <span class="tr-tag">Actuel</span>':'';
+      const desc = i<idx ? "Débloqué" : i===idx ? (total.toLocaleString("fr-FR")+" pts actuels") : (mins[i].toLocaleString("fr-FR")+" pts requis");
+      const req = i<idx ? '<span style="color:var(--accent);font-size:13px">✓</span>' : "";
+      return `<div class="tier-row ${st}">
+        <div class="tr-badge">${i+1}</div>
+        <div class="tr-body"><div class="tr-name">${r}${nameTag}</div><div class="tr-desc">${desc}</div></div>
+        <div class="tr-req">${req}</div>
+      </div>`;
+    }).join("");
+    const habitList = hs.map(h=>`${h.icon} ${escapeHtml(h.name)}`).join(" · ");
+    openModal(`
+      <div class="day-detail-h">
+        <div style="width:48px;height:48px;border-radius:14px;background:radial-gradient(circle at 30% 25%,rgba(228,200,134,.28),rgba(160,127,69,.12));border:1px solid rgba(201,167,107,.4);display:grid;place-items:center;font-size:24px">${cat.emoji}</div>
+        <div><h3 style="margin:0">${cat.name}</h3>
+        <p class="sub" style="margin:2px 0 0">${cat.ranks[idx]} · ${total.toLocaleString("fr-FR")} pts${s>=2?` · 🔥 ${s} j (+${bonus}/j)`:""}</p></div>
+      </div>
+      <div class="how-note" style="margin-bottom:16px">Habitudes : ${habitList}</div>
+      <div class="section-title" style="margin-bottom:10px">Paliers</div>
+      ${rows}
+    `);
   }
 
   // ---------- Render: MOIS ----------
