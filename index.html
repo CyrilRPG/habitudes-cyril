@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#0b1020" />
+<meta name="theme-color" content="#14110e" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Habitudes" />
@@ -13,10 +13,12 @@
 <link rel="apple-touch-icon" href="icon.svg" />
 <style>
   :root{
-    --bg:#0b1020; --bg2:#0f1630; --card:#151d3a; --card2:#1b2547;
-    --line:#26315c; --txt:#eef1ff; --muted:#95a0c8; --muted2:#6b769c;
-    --accent:#7c5cff; --accent2:#4f8cff;
-    --green:#22c55e; --lime:#84cc16; --yellow:#eab308; --orange:#f59e0b; --red:#ef4444;
+    /* Warm, editorial, premium palette — deep stone + champagne gold */
+    --bg:#14110e; --bg2:#1b1712; --card:#211c17; --card2:#2a241d;
+    --line:#3a322a; --txt:#f2ebdf; --muted:#a89b88; --muted2:#786e5f;
+    --accent:#c9a76b; --accent2:#a07f45;
+    /* Productivity scale — muted earth → sage, no neon */
+    --green:#6f9266; --lime:#93a05f; --yellow:#c2a24e; --orange:#c07d44; --red:#b45647;
     --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -24,8 +26,8 @@
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(124,92,255,.18), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(79,140,255,.16), transparent 55%),
+      radial-gradient(1100px 560px at 82% -12%, rgba(201,167,107,.10), transparent 60%),
+      radial-gradient(820px 480px at -12% 8%, rgba(160,127,69,.08), transparent 55%),
       var(--bg);
     color:var(--txt);
     min-height:100vh;
@@ -151,6 +153,58 @@
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .hidden{display:none !important}
 
+  /* Objectifs / paliers */
+  .tier-hero{background:
+      radial-gradient(120% 120% at 100% 0%, rgba(201,167,107,.16), transparent 55%),
+      linear-gradient(160deg,var(--card2),var(--card));
+    border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px}
+  .th-top{display:flex;gap:15px;align-items:center;margin-bottom:16px}
+  .th-emoji{width:66px;height:66px;border-radius:18px;flex-shrink:0;display:grid;place-items:center;font-size:32px;
+    background:radial-gradient(circle at 30% 25%,rgba(228,200,134,.28),rgba(160,127,69,.12));
+    border:1px solid rgba(201,167,107,.4);box-shadow:0 6px 22px rgba(0,0,0,.35)}
+  .th-meta{min-width:0}
+  .th-rank{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .th-name{font-size:23px;font-weight:800;line-height:1.1;margin:2px 0 4px;
+    background:linear-gradient(90deg,#e9d5a4,var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .th-desc{font-size:12.5px;color:var(--muted);line-height:1.35}
+  .th-prog-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px}
+  .th-prog-labels span:first-child{color:var(--txt);font-weight:700}
+  .th-bar-wrap{height:12px;background:var(--bg2);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .th-bar{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent2),var(--accent));
+    transition:width .7s cubic-bezier(.22,1,.36,1);min-width:2px}
+
+  .streak-card{display:flex;gap:13px;align-items:center;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:14px;margin-bottom:14px}
+  .streak-card.active{border-color:rgba(201,167,107,.5);
+    background:linear-gradient(100deg,rgba(201,167,107,.10),var(--card))}
+  .sc-flame{font-size:30px;filter:grayscale(.7);transition:.2s}
+  .streak-card.active .sc-flame{filter:none}
+  .sc-title{font-size:14.5px;font-weight:700}
+  .sc-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .sc-bonus{color:var(--accent);font-weight:800}
+
+  .how-note{background:var(--bg2);border:1px dashed var(--line);border-radius:14px;padding:12px 14px;
+    font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:18px}
+  .how-note strong{color:var(--txt)}
+  .how-note em{color:var(--accent);font-style:normal;font-weight:700}
+
+  .tier-row{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);
+    border-radius:15px;padding:12px 13px;margin-bottom:9px;transition:.15s}
+  .tier-row .tr-badge{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;
+    font-size:20px;background:var(--card2);border:1px solid var(--line)}
+  .tier-row .tr-body{flex:1;min-width:0}
+  .tier-row .tr-name{font-size:14.5px;font-weight:700}
+  .tier-row .tr-desc{font-size:11.5px;color:var(--muted2);margin-top:2px}
+  .tier-row .tr-req{font-size:11.5px;color:var(--muted);flex-shrink:0;text-align:right;font-weight:600}
+  .tier-row.unlocked .tr-badge{background:rgba(201,167,107,.14);border-color:rgba(201,167,107,.35)}
+  .tier-row.unlocked .tr-req{color:var(--accent)}
+  .tier-row.current{border-color:var(--accent);background:linear-gradient(100deg,rgba(201,167,107,.12),var(--card));
+    box-shadow:0 6px 20px rgba(0,0,0,.28)}
+  .tier-row.locked{opacity:.5}
+  .tier-row.locked .tr-badge{filter:grayscale(1)}
+  .tr-tag{font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);
+    border:1px solid var(--accent);border-radius:20px;padding:1px 7px;margin-left:8px;white-space:nowrap}
+
   /* Modal */
   .modal-bg{position:fixed;inset:0;background:rgba(4,7,18,.7);z-index:60;display:grid;place-items:end center;
     padding:0;animation:fade .2s}
@@ -214,8 +268,8 @@
     <div class="prod-card">
       <div class="ring">
         <svg width="96" height="96" viewBox="0 0 96 96">
-          <circle cx="48" cy="48" r="40" fill="none" stroke="#26315c" stroke-width="9"/>
-          <circle id="ringFg" cx="48" cy="48" r="40" fill="none" stroke="#22c55e" stroke-width="9"
+          <circle cx="48" cy="48" r="40" fill="none" stroke="#3a322a" stroke-width="9"/>
+          <circle id="ringFg" cx="48" cy="48" r="40" fill="none" stroke="#6f9266" stroke-width="9"
             stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
         </svg>
         <div class="pct">
@@ -274,6 +328,40 @@
     <div class="cal-grid" id="calGrid"></div>
     <div class="empty-note" id="monthHint">Touche un jour coloré pour voir le détail.</div>
   </section>
+
+  <!-- ============ OBJECTIFS ============ -->
+  <section id="view-objectifs" class="view hidden">
+    <div class="tier-hero" id="tierHero">
+      <div class="th-top">
+        <div class="th-emoji" id="tierEmoji">✦</div>
+        <div class="th-meta">
+          <div class="th-rank" id="tierRank">Palier</div>
+          <div class="th-name" id="tierName">—</div>
+          <div class="th-desc" id="tierDesc">—</div>
+        </div>
+      </div>
+      <div class="th-progress">
+        <div class="th-prog-labels"><span id="tierPts">0 pts</span><span id="tierNext">—</span></div>
+        <div class="th-bar-wrap"><div class="th-bar" id="tierBar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="streak-card" id="streakCard">
+      <div class="sc-flame" id="scFlame">🔥</div>
+      <div class="sc-body">
+        <div class="sc-title" id="scTitle">Aucune série en cours</div>
+        <div class="sc-sub" id="scSub">Coche au moins la moitié de tes habitudes aujourd'hui pour lancer une série.</div>
+      </div>
+    </div>
+
+    <div class="how-note">
+      <strong>Comment gagner des points ?</strong> +10 pts par habitude cochée, +20 pour une journée à 100 %,
+      et un <em>bonus de série</em> qui grandit chaque jour où tu tiens le rythme 🔥
+    </div>
+
+    <div class="section-title">Les paliers</div>
+    <div id="tierList"></div>
+  </section>
 </div>
 
 <!-- Bottom nav -->
@@ -282,6 +370,7 @@
     <button class="nav-btn active" data-view="jour"><span class="ni">✅</span>Jour</button>
     <button class="nav-btn" data-view="semaine"><span class="ni">📊</span>Semaine</button>
     <button class="nav-btn" data-view="mois"><span class="ni">📅</span>Mois</button>
+    <button class="nav-btn" data-view="objectifs"><span class="ni">🏆</span>Objectifs</button>
   </div>
 </nav>
 
@@ -353,18 +442,18 @@
 
   // ---------- Color + message ----------
   function colorFor(pct){
-    if(pct>=90) return "#22c55e";
-    if(pct>=75) return "#84cc16";
-    if(pct>=55) return "#eab308";
-    if(pct>=35) return "#f59e0b";
-    return "#ef4444";
+    if(pct>=90) return "#6f9266";
+    if(pct>=75) return "#93a05f";
+    if(pct>=55) return "#c2a24e";
+    if(pct>=35) return "#c07d44";
+    return "#b45647";
   }
   function bandFor(pct){
-    if(pct>=90) return {label:"Excellent", color:"#22c55e"};
-    if(pct>=75) return {label:"Très bien", color:"#84cc16"};
-    if(pct>=55) return {label:"Bien",      color:"#eab308"};
-    if(pct>=35) return {label:"En cours",  color:"#f59e0b"};
-    return {label:"À relancer", color:"#ef4444"};
+    if(pct>=90) return {label:"Excellent", color:"#6f9266"};
+    if(pct>=75) return {label:"Très bien", color:"#93a05f"};
+    if(pct>=55) return {label:"Bien",      color:"#c2a24e"};
+    if(pct>=35) return {label:"En cours",  color:"#c07d44"};
+    return {label:"À relancer", color:"#b45647"};
   }
   const MSG = {
     perfect:["Journée parfaite ! Tu as tout donné 🔥","100% ! Discipline exemplaire aujourd'hui 💪","Sans faute. Fier de toi, Cyril 👑"],
@@ -490,7 +579,7 @@
         row.addEventListener("click",()=>{ cursorDay=new Date(d); switchView("jour"); });
       }
       grid.appendChild(row);
-      requestAnimationFrame(()=>{ row.querySelector(".bar").style.width = ((future||!has)?0:pct)+"%"; });
+      const bar=row.querySelector(".bar"); void bar.offsetWidth; bar.style.width = ((future||!has)?0:pct)+"%";
     }
     $("#wkAvg").textContent = (count?Math.round(sum/count):0)+"%";
     $("#wkAvg").style.color = colorFor(count?Math.round(sum/count):0);
@@ -508,6 +597,99 @@
       if(c.pct>=50){ s++; d=addDays(d,-1); } else break;
     }
     return s;
+  }
+
+  // ---------- Objectifs / paliers ----------
+  const TIERS = [
+    {name:"Étincelle", emoji:"✨", min:0,    desc:"Le premier feu s'allume. Tout commence ici."},
+    {name:"Braise",    emoji:"🔥", min:80,   desc:"La chaleur s'installe, jour après jour."},
+    {name:"Flamme",    emoji:"🕯️", min:250,  desc:"Ta discipline prend vie."},
+    {name:"Flambeau",  emoji:"🪔", min:550,  desc:"Tu éclaires ta propre voie."},
+    {name:"Brasier",   emoji:"🏕️", min:1000, desc:"Plus rien n'arrête ton élan."},
+    {name:"Fournaise", emoji:"🌋", min:1700, desc:"Une intensité qui force le respect."},
+    {name:"Phare",     emoji:"🏮", min:2700, desc:"Ta constance guide et inspire."},
+    {name:"Soleil",    emoji:"☀️", min:4000, desc:"Au sommet : une régularité qui rayonne."},
+  ];
+  function streakBonus(streak){ return streak>=2 ? Math.min(streak,10)*5 : 0; }
+
+  function computeScore(){
+    const keys = Object.keys(state.days).filter(hasData).sort();
+    let total=0, streak=0, prev=null;
+    for(const k of keys){
+      const d = fromKey(k);
+      if(prev){ const gap=Math.round((d-prev)/86400000); if(gap>1) streak=0; }
+      const c = computeDay(k);
+      if(c.applicable>0){
+        let pts = c.done*10;
+        if(c.pct>=100) pts += 20;
+        if(c.pct>=50){ streak++; pts += streakBonus(streak); } else streak=0;
+        total += pts;
+      }
+      prev = d;
+    }
+    return {total};
+  }
+  function tierFor(total){
+    let idx=0;
+    for(let i=0;i<TIERS.length;i++){ if(total>=TIERS[i].min) idx=i; }
+    return idx;
+  }
+
+  function renderObjectifs(){
+    const {total} = computeScore();
+    const idx = tierFor(total);
+    const cur = TIERS[idx];
+    const next = TIERS[idx+1] || null;
+
+    $("#tierEmoji").textContent = cur.emoji;
+    $("#tierRank").textContent = "Palier "+(idx+1)+" / "+TIERS.length;
+    $("#tierName").textContent = cur.name;
+    $("#tierDesc").textContent = cur.desc;
+    $("#tierPts").textContent = total.toLocaleString("fr-FR")+" pts";
+
+    const bar = $("#tierBar");
+    if(next){
+      const span = next.min - cur.min;
+      const prog = Math.max(0, Math.min(100, Math.round((total-cur.min)/span*100)));
+      $("#tierNext").textContent = (next.min-total).toLocaleString("fr-FR")+" pts → "+next.name;
+      bar.style.width="0%"; void bar.offsetWidth; bar.style.width = prog+"%";
+    } else {
+      $("#tierNext").textContent = "Palier maximal atteint 👑";
+      bar.style.width="0%"; void bar.offsetWidth; bar.style.width = "100%";
+    }
+
+    // streak card
+    const s = currentStreak();
+    const card = $("#streakCard");
+    if(s>=2){
+      const b = streakBonus(s);
+      card.classList.add("active");
+      $("#scTitle").innerHTML = "Série de "+s+" jours 🔥";
+      $("#scSub").innerHTML = "Bonus actif : <span class='sc-bonus'>+"+b+" pts / jour</span>. Continue pour le faire grimper !";
+    } else {
+      card.classList.remove("active");
+      $("#scTitle").textContent = s===1 ? "Série lancée : 1 jour" : "Aucune série en cours";
+      $("#scSub").textContent = s===1
+        ? "Encore un jour à ≥ 50 % et ton bonus de série démarre 🔥"
+        : "Coche au moins la moitié de tes habitudes aujourd'hui pour lancer une série.";
+    }
+
+    // tier list
+    const list = $("#tierList"); list.innerHTML="";
+    TIERS.forEach((t,i)=>{
+      const st = i<idx ? "unlocked" : i===idx ? "current" : "locked";
+      const row = document.createElement("div");
+      row.className = "tier-row "+st;
+      const tag = i===idx ? '<span class="tr-tag">Actuel</span>' : i<idx ? '<span style="color:var(--accent);font-size:13px">✓</span>' : '';
+      row.innerHTML = `
+        <div class="tr-badge">${t.emoji}</div>
+        <div class="tr-body">
+          <div class="tr-name">${t.name} ${i===idx?tag:""}</div>
+          <div class="tr-desc">${escapeHtml(t.desc)}</div>
+        </div>
+        <div class="tr-req">${i<=idx?(i<idx?tag:""):(t.min.toLocaleString("fr-FR")+" pts")}</div>`;
+      list.appendChild(row);
+    });
   }
 
   // ---------- Render: MOIS ----------
@@ -589,6 +771,7 @@
     if(v==="jour") renderJour();
     if(v==="semaine"){ weekCursor=weekStart(cursorDay>TODAY?TODAY:cursorDay); renderSemaine(); }
     if(v==="mois"){ renderMois(); }
+    if(v==="objectifs"){ renderObjectifs(); }
     window.scrollTo({top:0,behavior:"instant"});
   }
   $$(".nav-btn").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.view)));

@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7c5cff"/>
-      <stop offset="1" stop-color="#4f8cff"/>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e4c886"/>
+      <stop offset="1" stop-color="#a07f45"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" fill="url(#g)"/>
+  <rect width="512" height="512" fill="#1b1712"/>
   <g transform="translate(128 128) scale(0.5)">
-    <path d="M256 96c14 46-8 74-30 96-26 26-52 52-52 100a82 82 0 0 0 164 0c0-26-10-44-22-60 4 20-2 36-16 42 10-40-16-72-44-108-6 44-38 58-38 92a52 52 0 0 0 104 0c0-40-30-56-30-96 22 10 44 34 44 78a108 108 0 1 1-216 0c0-64 40-96 72-128 30-30 54-64 30-116z" fill="#fff"/>
+    <path d="M256 96c14 46-8 74-30 96-26 26-52 52-52 100a82 82 0 0 0 164 0c0-26-10-44-22-60 4 20-2 36-16 42 10-40-16-72-44-108-6 44-38 58-38 92a52 52 0 0 0 104 0c0-40-30-56-30-96 22 10 44 34 44 78a108 108 0 1 1-216 0c0-64 40-96 72-128 30-30 54-64 30-116z" fill="url(#gold)"/>
   </g>
 </svg>
