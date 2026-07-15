@@ -359,8 +359,8 @@
       <p>Chaque domaine progresse à son rythme, palier après palier.</p>
     </div>
     <div class="how-note">
-      <strong>Comment ça marche ?</strong> Chaque habitude cochée rapporte <em>+10 pts</em> à sa catégorie,
-      <em>+5</em> si la catégorie est complète dans la journée, et un <em>bonus de série</em> tant que tu la gardes à 100 % 🔥
+      <strong>Comment ça marche ?</strong> Chaque catégorie vaut <em>15 pts / jour</em>, répartis entre ses habitudes.
+      Coche-les pour marquer ces points — puis un petit <em>bonus de série</em> s'ajoute tant que tu gardes la catégorie à 100 % 🔥
     </div>
     <div id="catList"></div>
   </section>
@@ -387,16 +387,19 @@
   const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
 
   const DEFAULT_HABITS = [
-    {id:"priere",   name:"Prière du soir",                 icon:"🙏", cat:"spirituel"},
-    {id:"sport",    name:"Sport",                          icon:"💪", hint:"Rythme : sport · sport · repos", cat:"sport"},
-    {id:"bible",    name:"Lecture de la Bible + commentaire", icon:"📖", cat:"spirituel"},
-    {id:"anglais",  name:"Anglais – Pingo",                icon:"🇬🇧", cat:"culture"},
-    {id:"hermione", name:"Travail Hermione Médecine",      icon:"🩺", cat:"travail"},
-    {id:"projets",  name:"Projets Stéphane / Sonia",       icon:"💼", cat:"travail"},
-    {id:"items",    name:"Apprendre 1 item / Réviser 2",   icon:"🧠", cat:"etudes"},
-    {id:"culture",  name:"Voir une vidéo de culture générale", icon:"🎥", cat:"culture"},
+    // cat/pts = objectifs par catégorie (somme 15 par catégorie) ; w = poids dans le % quotidien (somme 100)
+    {id:"priere",   name:"Prière du soir",                 icon:"🙏", cat:"spirituel", pts:8,  w:10},
+    {id:"sport",    name:"Sport",                          icon:"💪", hint:"Rythme : sport · sport · repos", cat:"sport", pts:15, w:15},
+    {id:"bible",    name:"Lecture de la Bible + commentaire", icon:"📖", cat:"spirituel", pts:7,  w:10},
+    {id:"anglais",  name:"Anglais – Pingo",                icon:"🇬🇧", cat:"culture", pts:8,  w:5},
+    {id:"hermione", name:"Travail Hermione Médecine",      icon:"🩺", cat:"travail", pts:8,  w:15},
+    {id:"projets",  name:"Projets Stéphane / Sonia",       icon:"💼", cat:"travail", pts:7,  w:15},
+    {id:"items",    name:"Apprendre 1 item / Réviser 2",   icon:"🧠", cat:"etudes", pts:15, w:25},
+    {id:"culture",  name:"Voir une vidéo de culture générale", icon:"🎥", cat:"culture", pts:7,  w:5},
   ];
   const CAT_FALLBACK = "autre";
+  const DEFAULT_PTS = 8;  // points d'objectif par défaut (habitude personnalisée)
+  const DEFAULT_W = 10;   // poids par défaut dans le % quotidien
 
   // ---------- State ----------
   let state = load();
@@ -407,10 +410,15 @@
     }catch(e){}
     return { habits: DEFAULT_HABITS.slice(), days:{} };
   }
-  // Backfill category on habits saved before categories existed.
+  // Backfill category + weight on habits saved before these existed.
   function migrate(p){
-    const byId = {}; DEFAULT_HABITS.forEach(h=>byId[h.id]=h.cat);
-    p.habits.forEach(h=>{ if(!h.cat) h.cat = byId[h.id] || CAT_FALLBACK; });
+    const cat = {}, pts = {}; DEFAULT_HABITS.forEach(h=>{ cat[h.id]=h.cat; pts[h.id]=h.pts; });
+    const w = {}; DEFAULT_HABITS.forEach(h=>{ w[h.id]=h.w; });
+    p.habits.forEach(h=>{
+      if(!h.cat) h.cat = cat[h.id] || CAT_FALLBACK;
+      if(typeof h.pts !== "number") h.pts = pts[h.id] || DEFAULT_PTS;
+      if(typeof h.w !== "number") h.w = w[h.id] || DEFAULT_W;
+    });
     return p;
   }
   function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
@@ -430,17 +438,19 @@
 
   // ---------- Day data ----------
   function getDay(k){ if(!state.days[k]) state.days[k]={checks:{},comment:""}; return state.days[k]; }
+  function habitW(h){ return typeof h.w==="number" ? h.w : DEFAULT_W; }
+  // Daily productivity: weighted by each habit's % share; rest days drop out and the rest renormalizes.
   function computeDay(k){
     const day = state.days[k];
     const habits = state.habits;
-    let applicable=0, done=0;
+    let applicable=0, done=0, wApplic=0, wDone=0;
     for(const h of habits){
       const st = day && day.checks ? day.checks[h.id] : undefined;
       if(st==="rest") continue;
-      applicable++;
-      if(st==="done") done++;
+      applicable++; wApplic += habitW(h);
+      if(st==="done"){ done++; wDone += habitW(h); }
     }
-    const pct = applicable? Math.round(done/applicable*100) : 0;
+    const pct = wApplic? Math.round(wDone/wApplic*100) : 0;
     return {applicable,done,pct,total:habits.length};
   }
   function hasData(k){
@@ -512,7 +522,7 @@
         <div class="emoji">${h.icon||"•"}</div>
         <div class="h-body">
           <div class="h-name">${escapeHtml(h.name)}</div>
-          <div class="h-hint">${st==="rest"?"💤 Jour de repos":(h.hint?escapeHtml(h.hint):"Touche pour cocher")}</div>
+          <div class="h-hint">${st==="rest"?"💤 Jour de repos":((h.hint?escapeHtml(h.hint)+" · ":"")+habitW(h)+"% du jour")}</div>
         </div>
         <div class="state">${st==="done"?"✓":st==="rest"?"💤":""}</div>`;
       if(!isFuture){
@@ -610,7 +620,9 @@
   }
 
   // ---------- Objectifs par catégorie ----------
-  const BASE_MINS = [0,40,110,230,420,700];
+  // Chaque catégorie vaut ~15 pts/jour (répartis entre ses habitudes via h.pts).
+  const TIER_MINS = [0,60,180,400,750,1300];
+  function streakBonus(s){ return s>=2 ? Math.min(s,10) : 0; } // petit bonus : +1/jour de série, plafonné à +10
   const CATEGORIES = [
     {id:"spirituel", name:"Spirituel",         emoji:"🙏", ranks:["Chercheur","Fidèle","Veilleur","Pèlerin","Disciple","Lumière"]},
     {id:"sport",     name:"Sport",             emoji:"💪", ranks:["Débutant","Actif","Endurant","Athlète","Guerrier","Champion"]},
@@ -620,24 +632,26 @@
     {id:"autre",     name:"Autre",             emoji:"⭐", ranks:["Débutant","Habitué","Confirmé","Aguerri","Expert","Maître"]},
   ];
   function habitsInCat(catId){ return state.habits.filter(h=>(h.cat||CAT_FALLBACK)===catId); }
-  function catMins(nHabits){ const m=Math.max(1,nHabits); return BASE_MINS.map(x=>x*m); }
+  function habitPts(h){ return typeof h.pts==="number" ? h.pts : DEFAULT_PTS; }
+  function catMins(){ return TIER_MINS.slice(); }
 
   // Per-category stats for one day
   function catDay(catId, k){
     const day = state.days[k];
-    let applicable=0, done=0, restCount=0;
+    let applicable=0, done=0, restCount=0, donePts=0;
     if(day && day.checks){
       for(const h of habitsInCat(catId)){
         const st = day.checks[h.id];
         if(st==="rest"){ restCount++; continue; }
-        applicable++; if(st==="done") done++;
+        applicable++; if(st==="done"){ done++; donePts += habitPts(h); }
       }
     }
-    return {applicable, done, restCount,
+    return {applicable, done, restCount, donePts,
       complete: applicable>0 && done===applicable,
       rest: applicable===0 && restCount>0};
   }
-  // Cumulative points for a category over the whole history
+  // Cumulative points for a category over the whole history.
+  // A full category day = sum of its habits' weights (~15). Streak adds a small bonus.
   function computeCat(catId){
     const keys = Object.keys(state.days).filter(hasData).sort();
     let total=0, streak=0, prev=null;
@@ -645,8 +659,8 @@
       const d = fromKey(k);
       if(prev){ const gap=Math.round((d-prev)/86400000); if(gap>1) streak=0; }
       const cd = catDay(catId,k);
-      total += cd.done*10;
-      if(cd.complete){ total += 5; streak++; if(streak>=2) total += Math.min(streak,10)*3; }
+      total += cd.donePts;
+      if(cd.complete){ streak++; total += streakBonus(streak); }
       else if(cd.rest){ /* jour de repos : neutre */ }
       else { streak=0; }
       prev = d;
@@ -677,7 +691,7 @@
       const idx = tierIndex(total, mins);
       const nextMin = idx<mins.length-1 ? mins[idx+1] : null;
       const s = catStreak(cat.id);
-      const bonus = s>=2 ? Math.min(s,10)*3 : 0;
+      const bonus = streakBonus(s);
 
       let prog, right;
       if(nextMin!==null){
@@ -711,7 +725,7 @@
     const total = computeCat(catId);
     const idx = tierIndex(total, mins);
     const s = catStreak(catId);
-    const bonus = s>=2 ? Math.min(s,10)*3 : 0;
+    const bonus = streakBonus(s);
     const rows = cat.ranks.map((r,i)=>{
       const st = i<idx?"unlocked":i===idx?"current":"locked";
       const nameTag = i===idx?' <span class="tr-tag">Actuel</span>':'';
@@ -723,14 +737,14 @@
         <div class="tr-req">${req}</div>
       </div>`;
     }).join("");
-    const habitList = hs.map(h=>`${h.icon} ${escapeHtml(h.name)}`).join(" · ");
+    const habitList = hs.map(h=>`${h.icon} ${escapeHtml(h.name)} <b style="color:var(--accent)">${habitPts(h)}</b>`).join(" · ");
     openModal(`
       <div class="day-detail-h">
         <div style="width:48px;height:48px;border-radius:14px;background:radial-gradient(circle at 30% 25%,rgba(228,200,134,.28),rgba(160,127,69,.12));border:1px solid rgba(201,167,107,.4);display:grid;place-items:center;font-size:24px">${cat.emoji}</div>
         <div><h3 style="margin:0">${cat.name}</h3>
         <p class="sub" style="margin:2px 0 0">${cat.ranks[idx]} · ${total.toLocaleString("fr-FR")} pts${s>=2?` · 🔥 ${s} j (+${bonus}/j)`:""}</p></div>
       </div>
-      <div class="how-note" style="margin-bottom:16px">Habitudes : ${habitList}</div>
+      <div class="how-note" style="margin-bottom:16px">Répartition des 15 pts/jour : ${habitList}</div>
       <div class="section-title" style="margin-bottom:10px">Paliers</div>
       ${rows}
     `);
